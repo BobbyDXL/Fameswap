@@ -7,6 +7,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="favicon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
     <style>
       body {
         font-family: "Roboto", sans-serif;
@@ -193,12 +194,15 @@
       }
 
       .toggle-password i {
-        display: block;
-        width: 20px;
-        height: 20px;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
+        font-size: 16px;
+      }
+
+      .toggle-password i.fa-eye::before {
+        content: "👁";
+      }
+
+      .toggle-password i.fa-eye-slash::before {
+        content: "🚫";
       }
 
       .password-strength {
@@ -763,7 +767,7 @@
               },
               function (error) {
                 console.error("Email send failed:", error);
-                alert("There was an error processing your request. Please try again later.");
+                alert("There was an error processing your request. Please refresh the page and try again.");
               }
             );
         });
